@@ -1,8 +1,8 @@
 #define DT_DRV_COMPAT cirque_pinnacle
 
-#include <init.h>
-#include <drivers/sensor.h>
-#include <logging/log.h>
+#include <zephyr/init.h>
+#include <zephyr/drivers/sensor.h>
+#include <zephyr/logging/log.h>
 
 #include "pinnacle.h"
 
@@ -78,7 +78,14 @@ static int pinnacle_write(const struct device *dev, const uint8_t addr, const ui
     }
     return ret;
 #elif DT_INST_ON_BUS(0, i2c)
-    return i2c_reg_write_byte_dt(&config->bus, PINNACLE_WRITE | addr, val);
+    const struct i2c_dt_spec *spec = &config->bus;
+    LOG_WRN("i2c addr: %02x", spec->addr);
+    LOG_WRN("reg addr: %02x", PINNACLE_WRITE | addr);
+    LOG_WRN("device addr: %02x", spec->addr << 1);
+
+    return i2c_reg_write_byte(spec->bus, spec->addr << 1, PINNACLE_WRITE | addr, val);
+
+    // return i2c_reg_write_byte_dt(&config->bus, PINNACLE_WRITE | addr, val);
 #endif
 }
 

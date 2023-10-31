@@ -52,4 +52,11 @@ endchoice
 
 endif # LVGL
 
+config PINNACLE
+    default n
+
+config ZMK_MOUSE
+    default n
+
+
 endif # SHIELD_SPLITKB_AURORA_CORNE_LEFT || SHIELD_SPLITKB_AURORA_CORNE_RIGHT

@@ -33,10 +33,26 @@
             , <&pro_micro 19 GPIO_ACTIVE_HIGH>
             ;
     };
+
 };
 
 &left_encoder {
     status = "okay";
+};
+
+&pro_micro_i2c {
+    status = "okay";
+
+    trackpad:trackpad@2a {
+        compatible = "cirque,pinnacle";
+        status = "okay";
+        label = "TRACKPAD";
+        reg = <0x2A>;
+        rotate-90;
+        sleep;
+        /* no-taps; */
+    };
+
 };
 
 
