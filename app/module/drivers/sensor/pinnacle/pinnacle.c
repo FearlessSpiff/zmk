@@ -79,29 +79,9 @@ static int pinnacle_write(const struct device *dev, const uint8_t addr, const ui
     return ret;
 #elif DT_INST_ON_BUS(0, i2c)
     const struct i2c_dt_spec *spec = &config->bus;
-
-    uint8_t nDevices = 0;
-    LOG_WRN("Scanning...");
-
-    for (uint8_t address = 1; address < 127; address++) {
-        int ret;
-        ret = i2c_reg_write_byte(spec->bus, address << 1, PINNACLE_WRITE | addr, val);
-        if (ret < 0) {
-            // LOG_WRN("Nothing found at 0x%02X\n", address);
-        } else {
-            LOG_WRN("I2C device found at address 0x%02X\n", address);
-            nDevices++;
-        }
-        k_msleep(2);
-    }
-
-    if (nDevices == 0)
-        LOG_WRN("No I2C devices found\n");
-    else
-        LOG_WRN("done\n");
+    
     return i2c_reg_write_byte(spec->bus, spec->addr << 1, PINNACLE_WRITE | addr, val);
-
-    // return i2c_reg_write_byte_dt(&config->bus, PINNACLE_WRITE | addr, val);
+    //return i2c_reg_write_byte_dt(&config->bus, PINNACLE_WRITE | addr, val);
 #endif
 }
 
