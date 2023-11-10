@@ -42,6 +42,7 @@
 
 &pro_micro_i2c {
     status = "okay";
+    clock-frequency = <400000>;
 
     trackpad:trackpad@2a {
         compatible = "cirque,pinnacle";

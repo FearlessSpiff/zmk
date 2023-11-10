@@ -78,10 +78,7 @@ static int pinnacle_write(const struct device *dev, const uint8_t addr, const ui
     }
     return ret;
 #elif DT_INST_ON_BUS(0, i2c)
-    const struct i2c_dt_spec *spec = &config->bus;
-    
-    return i2c_reg_write_byte(spec->bus, spec->addr << 1, PINNACLE_WRITE | addr, val);
-    //return i2c_reg_write_byte_dt(&config->bus, PINNACLE_WRITE | addr, val);
+    return i2c_reg_write_byte_dt(&config->bus, PINNACLE_WRITE | addr, val);
 #endif
 }
 
