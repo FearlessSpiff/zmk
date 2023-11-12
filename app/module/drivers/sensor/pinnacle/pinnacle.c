@@ -96,7 +96,7 @@ static int pinnacle_channel_get(const struct device *dev, enum sensor_channel ch
 static int pinnacle_sample_fetch(const struct device *dev, enum sensor_channel chan) {
     uint8_t packet[3];
     int ret;
-    ret = pinnacle_seq_read(dev, PINNACLE_STATUS1, packet, 0);
+    ret = pinnacle_seq_read(dev, PINNACLE_STATUS1, packet, 1);
     if (ret < 0) {
         LOG_ERR("read status: %d", ret);
         return ret;
@@ -113,13 +113,24 @@ static int pinnacle_sample_fetch(const struct device *dev, enum sensor_channel c
     data->btn = packet[0] & PINNACLE_PACKET0_BTN_PRIM;
     data->dx = (int16_t) (int8_t) packet[1];
     data->dy = (int16_t) (int8_t) packet[2];
+#ifdef CONFIG_PINNACLE_TRIGGER
     if (!data->in_int) {
-        ret = pinnacle_write(dev, PINNACLE_STATUS1, 0);   // Clear SW_DR
+        ret = pinnacle_write(dev, PINNACLE_STATUS1, 0); // Clear SW_DR & SW_CC
         if (ret < 0) {
             LOG_ERR("clear dr: %d", ret);
             return ret;
         }
     }
+#else
+    // Clear SW_DR & SW_CC
+    ret = pinnacle_write(dev, PINNACLE_STATUS1, 0);
+    if (ret < 0) {
+        LOG_ERR("clear dr & cc: %d", ret);
+        return ret;
+    }
+    k_sleep(K_MSEC(50));
+#endif
+
     return 0;
 }
 
@@ -196,7 +207,7 @@ static int pinnacle_init(const struct device *dev) {
         LOG_ERR("can't reset %d", ret);
         return ret;
     }
-    k_msleep(20);
+    k_msleep(30);
     ret = pinnacle_write(dev, PINNACLE_STATUS1, 0);   // Clear CC
     if (ret < 0) {
         LOG_ERR("can't write %d", ret);
@@ -235,6 +246,13 @@ static int pinnacle_init(const struct device *dev) {
         LOG_ERR("can't write %d", ret);
         return ret;
     }
+    // Clear SW_DR & SW_CC
+    ret = pinnacle_write(dev, PINNACLE_STATUS1, 0);
+    if (ret < 0) {
+        LOG_ERR("clear dr & cc: %d", ret);
+        return ret;
+    }
+    k_sleep(K_MSEC(50));
 
 #ifdef CONFIG_PINNACLE_TRIGGER
     data->dev = dev;
@@ -263,10 +281,10 @@ static int pinnacle_init(const struct device *dev) {
 
 static const struct sensor_driver_api pinnacle_driver_api = {
 #if CONFIG_PINNACLE_TRIGGER
-	.trigger_set = pinnacle_trigger_set,
+    .trigger_set = pinnacle_trigger_set,
 #endif
-	.sample_fetch = pinnacle_sample_fetch,
-	.channel_get = pinnacle_channel_get,
+    .sample_fetch = pinnacle_sample_fetch,
+    .channel_get = pinnacle_channel_get,
 };
 
 #define PINNACLE_INST(n) \
