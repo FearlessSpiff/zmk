@@ -1,4 +1,4 @@
-if(CONFIG_PINNACLE)
+if(CONFIG_PINNACLE AND CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
 
 zephyr_library()
 zephyr_library_sources(trackpad.c)
