@@ -128,7 +128,6 @@ static int pinnacle_sample_fetch(const struct device *dev, enum sensor_channel c
         LOG_ERR("clear dr & cc: %d", ret);
         return ret;
     }
-    k_sleep(K_MSEC(50));
 #endif
 
     return 0;
