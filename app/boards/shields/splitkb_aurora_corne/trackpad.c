@@ -18,6 +18,7 @@ LOG_MODULE_REGISTER(trackpad, CONFIG_SENSOR_LOG_LEVEL);
 const struct device *trackpad = DEVICE_DT_GET(DT_NODELABEL(trackpad));
 
 static void handle_trackpad(const struct device *dev, const struct sensor_trigger *trig) {
+    LOG_WRN("-> handle_trackpad");
     static uint8_t last_pressed = 0;
     int ret = sensor_sample_fetch(dev);
     if (ret < 0 && ret != -EAGAIN) {
@@ -70,28 +71,18 @@ static void handle_trackpad(const struct device *dev, const struct sensor_trigge
     last_pressed = btn.val1;
 }
 
-#ifdef CONFIG_PINNACLE_TRIGGER
 static int trackpad_init() {
     struct sensor_trigger trigger = {
         .type = SENSOR_TRIG_DATA_READY,
         .chan = SENSOR_CHAN_ALL,
     };
-    printk("trackpad");
+    LOG_WRN("-> set sensor trigger");
     if (sensor_trigger_set(trackpad, &trigger, handle_trackpad) < 0) {
         LOG_ERR("can't set trigger");
         return -EIO;
     };
+    LOG_WRN("<- set sensor trigger");
     return 0;
 }
 
 SYS_INIT(trackpad_init, APPLICATION, CONFIG_KSCAN_INIT_PRIORITY);
-#else
-void poll_trackpad(void *a, void *b, void *c) {
-    while (1) {
-        handle_trackpad(trackpad, NULL);
-        k_sleep(K_MSEC(10));
-    }
-}
-
-K_THREAD_DEFINE(my_tid, THREAD_STACK_SIZE, poll_trackpad, NULL, NULL, NULL, THREAD_PRIORITY, 0, 0);
-#endif

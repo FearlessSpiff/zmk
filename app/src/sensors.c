@@ -125,10 +125,10 @@ static void zmk_sensors_trigger_handler(const struct device *dev,
 }
 
 static void zmk_sensors_init_item(uint8_t i) {
-    LOG_DBG("Init sensor at index %d", i);
+    LOG_WRN("Init sensor at index %d", i);
 
     if (!sensors[i].dev) {
-        LOG_DBG("No local device for %d", i);
+        LOG_WRN("No local device for %d", i);
         return;
     }
 
